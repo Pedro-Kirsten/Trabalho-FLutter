@@ -95,6 +95,7 @@ class _ListaDeContatosState extends State<ListaDeContatos> {
   void initState() {
     super.initState();
     _ImportarContatos();
+    _addContato();
   }
 
   Future<void> _ImportarContatos() async {
@@ -126,11 +127,6 @@ class _ListaDeContatosState extends State<ListaDeContatos> {
     _ImportarContatos();
   }
 
-  Future<void> _excluirContato(Contato contato) async {
-    final Database db = await widget.database;
-    await db.delete('contatos');
-  }
-
   Future<void> _editarContato(Contato contato) async {
     final contatoEditado = await showDialog<Contato>(
       context: this.context,
@@ -153,7 +149,7 @@ class _ListaDeContatosState extends State<ListaDeContatos> {
               ),
               TextField(
                 controller: telefoneController,
-                decoration: InputDecoration(labelText: 'Fone'),
+                decoration: InputDecoration(labelText: 'Telefone'),
               ),
               TextField(
                 controller: emailController,
@@ -211,8 +207,27 @@ class _ListaDeContatosState extends State<ListaDeContatos> {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(Contatos[index].nome),
-            subtitle: Text(
-                "Telefone: ${Contatos[index].telefone}\nEmail: ${Contatos[index].email}"),
+            subtitle: Column(
+              children: <Widget>[
+                Text(
+                    "Telefone: ${Contatos[index].telefone}\nEmail: ${Contatos[index].email}"),
+                Text('inside column'),
+                TextButton(
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.focused))
+                        return Colors.red;
+                      return null; // Defer to the widget's default.
+                    }),
+                  ),
+                  child: Text('EXCLUIR'),
+                  onPressed: () {
+                    _deletarContato(Contatos[index]);
+                  },
+                )
+              ],
+            ),
             onTap: () {
               _editarContato(Contatos[index]);
             },
@@ -231,5 +246,17 @@ class _ListaDeContatosState extends State<ListaDeContatos> {
         ],
       ),
     );
+  }
+
+  Future<void> _deletarContato(Contato contato) async {
+    final Database db = await widget.database;
+
+    await db.delete(
+      'contatos',
+      where: 'id = ?',
+      whereArgs: [contato.id],
+    );
+
+    _ImportarContatos();
   }
 }
