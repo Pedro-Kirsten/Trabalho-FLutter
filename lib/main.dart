@@ -211,7 +211,6 @@ class _ListaDeContatosState extends State<ListaDeContatos> {
               children: <Widget>[
                 Text(
                     "Telefone: ${Contatos[index].telefone}\nEmail: ${Contatos[index].email}"),
-                Text('inside column'),
                 TextButton(
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.resolveWith<Color?>(
